@@ -1,0 +1,66 @@
+### Auth Service - Modulo A - Requisicoes de exemplo
+### Pode ser executado com a extensao "REST Client" (VS Code) ou similar no IntelliJ.
+
+@host = http://localhost:8081
+
+### 1) Cadastrar um usuario da COMISSAO
+POST {{host}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Profa. Maria Silva",
+  "email": "maria.silva@ufrrj.br",
+  "senha": "senha123",
+  "perfil": "COMISSAO"
+}
+
+### 2) Cadastrar um usuario ALUNO
+POST {{host}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Joao Pereira",
+  "email": "joao.pereira@ufrrj.br",
+  "senha": "senha123",
+  "perfil": "ALUNO"
+}
+
+### 3) Login do aluno (copie o "token" da resposta para os passos seguintes)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao.pereira@ufrrj.br",
+  "senha": "senha123"
+}
+
+### 4) Validar um token (e o que os Modulos B e C vao chamar)
+GET {{host}}/api/auth/validar/SUBSTITUA_PELO_TOKEN
+
+### 4.1) Validar exigindo perfil COMISSAO (uso tipico em rota da Comissao)
+GET {{host}}/api/auth/validar/SUBSTITUA_PELO_TOKEN?perfilExigido=COMISSAO
+
+### 5) Consultar um usuario pelo id (qualquer perfil autenticado)
+GET {{host}}/api/usuarios/2
+Authorization: SUBSTITUA_PELO_TOKEN
+
+### 6) Listar todos os usuarios (somente COMISSAO)
+GET {{host}}/api/usuarios
+Authorization: SUBSTITUA_PELO_TOKEN_DA_COMISSAO
+
+### 7) Atualizar o proprio cadastro
+PUT {{host}}/api/usuarios/2
+Authorization: SUBSTITUA_PELO_TOKEN
+Content-Type: application/json
+
+{
+  "nome": "Joao Pereira da Silva"
+}
+
+### 8) Desativar (exclusao logica) a propria conta
+DELETE {{host}}/api/usuarios/2
+Authorization: SUBSTITUA_PELO_TOKEN
+
+### 9) Logout
+POST {{host}}/api/auth/logout
+Authorization: SUBSTITUA_PELO_TOKEN
