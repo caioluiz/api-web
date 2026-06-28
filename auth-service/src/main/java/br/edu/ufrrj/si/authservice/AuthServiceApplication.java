@@ -7,11 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Modulo A do SisExt-SI: Servico de Gestao de Usuarios e Autenticacao.
  *
  * Responsabilidades (ver enunciado, secao 4 - Modulo A):
- *  - CRUD de usuarios, separando estritamente os perfis ALUNO e COMISSAO;
+ *  - CRUD de usuarios, separando estritamente os perfis ALUNO e FUNCIONARIO;
  *  - Exclusao logica (o usuario nunca e removido fisicamente da base);
- *  - Emissao de tokens de sessao de 8 digitos (tokens que comecam com '1'
- *    pertencem a COMISSAO; os demais pertencem a ALUNO);
- *  - Endpoint de validacao de token, consumido pelos Modulos B e C.
+ *  - Emissao e validacao de JWT;
+ *  - Endpoint de validacao de token consumido pelos Modulos B e C.
  */
 @SpringBootApplication
 public class AuthServiceApplication {

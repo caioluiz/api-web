@@ -20,7 +20,7 @@ public class OpenApiConfig {
                 .version("1.0.0")
                 .description("Servico de Gestao de Usuarios e Autenticacao do ecossistema de "
                         + "submissao, consulta e validacao de horas extensionistas. "
-                        + "Os Modulos B e C devem consumir o endpoint GET /api/auth/validar/{token} "
+                        + "Os Modulos B e C devem consumir o endpoint POST /api/auth/validar "
                         + "para confirmar a autenticidade dos tokens recebidos."));
     }
 }

@@ -4,6 +4,7 @@ import br.edu.ufrrj.si.authservice.dto.ErroResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -61,6 +63,16 @@ public class GlobalExceptionHandler {
                 .map(erro -> erro.getField() + ": " + erro.getDefaultMessage())
                 .collect(Collectors.joining(" | "));
         return construir(HttpStatus.BAD_REQUEST, mensagem.isBlank() ? "Payload invalido." : mensagem, req);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> tratar(DataIntegrityViolationException ex, HttpServletRequest req) {
+        return construir(HttpStatus.CONFLICT, "Violacao de restricao de dados. Verifique CPF e e-mail unicos.", req);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErroResponse> tratar(NoResourceFoundException ex, HttpServletRequest req) {
+        return construir(HttpStatus.NOT_FOUND, "Rota nao encontrada.", req);
     }
 
     @ExceptionHandler(Exception.class)

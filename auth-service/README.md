@@ -1,203 +1,230 @@
-# Auth Service — Módulo A (SisExt-SI)
+# Auth Service - Modulo A (SisExt-SI)
 
-Serviço de **Gestão de Usuários e Autenticação** do projeto *Sistema de Gestão e
-Acompanhamento de Atividades Extensionistas* (Web 3 — UFRRJ).
+Servico de Gestao de Usuarios e Autenticacao do SisExt-SI. Esta versao usa Java, Spring Boot, Maven, PostgreSQL, Flyway, Spring Security e JWT.
 
-Este é o serviço "base" da arquitetura: os Módulos B (Serviço do Aluno) e C
-(Serviço da Comissão) dependem dele tanto para autenticar usuários quanto para
-**validar tokens** recebidos em suas próprias requisições.
+## Como Rodar
 
----
-
-## 1. O que este serviço faz
-
-- **CRUD de usuários**, separando estritamente os perfis `ALUNO` e `COMISSAO`.
-- **Exclusão lógica**: não existe exclusão física. Um usuário só pode solicitar
-  a desativação da própria conta (`status` muda de `ATIVO` para `DESATIVADO`,
-  e o histórico permanece no banco).
-- **Autenticação simplificada por token**, exatamente como descrito no
-  enunciado:
-  - token aleatório de **8 dígitos numéricos**;
-  - se o token **começa com `1`** → pertence a um usuário da **COMISSAO**;
-  - qualquer outro primeiro dígito → pertence a um **ALUNO**;
-  - o token é guardado em uma "sessão" (mapa em memória, com expiração) no
-    `TokenService`;
-  - existe uma rota de **confirmação de token**, que é o contrato que os
-    Módulos B e C devem consumir.
-
-## 2. Como executar
-
-Pré-requisitos: **JDK 17+** e **Maven** instalados (o `mvn` baixa as
-dependências do Spring na primeira execução — é necessário ter internet nessa
-hora).
+### Docker Compose
 
 ```bash
-cd auth-service
+docker compose up --build
+```
+
+A API fica em:
+
+```text
+http://localhost:8081
+```
+
+Swagger:
+
+```text
+http://localhost:8081/swagger-ui.html
+```
+
+O compose sobe dois servicos:
+
+- `app`: API Spring Boot.
+- `db`: PostgreSQL.
+
+### Local Sem Docker
+
+Suba um PostgreSQL local e configure as variaveis:
+
+```bash
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=sisext_si
+DB_USER=postgres
+DB_PASSWORD=postgres
+JWT_SECRET=change-this-secret-with-at-least-32-chars
+JWT_EXPIRATION=120
+```
+
+Depois execute:
+
+```bash
 mvn spring-boot:run
 ```
 
-O serviço sobe em **`http://localhost:8081`**.
+Neste ambiente, se voce estiver usando o Maven local baixado na pasta do trabalho:
 
-- Console do banco H2 (opcional, útil para depurar): `http://localhost:8081/h2-console`
-  (JDBC URL: `jdbc:h2:file:./data/authdb`, usuário `sa`, senha vazia)
-- Documentação interativa (Swagger): `http://localhost:8081/swagger-ui.html`
-
-> O arquivo `requests.http` na raiz do projeto já traz o fluxo completo de
-> exemplo (cadastro → login → validação → atualização → desativação), pronto
-> para rodar com a extensão *REST Client* do VS Code ou equivalente do
-> IntelliJ.
-
-## 3. Contrato da API
-
-Todas as rotas usam JSON. Erros sempre voltam no formato:
-
-```json
-{
-  "timestamp": "2026-06-26T10:00:00",
-  "status": 401,
-  "erro": "Unauthorized",
-  "mensagem": "Token invalido, expirado ou ausente.",
-  "caminho": "/api/usuarios/2"
-}
+```powershell
+& "..\..\.tools\apache-maven-3.9.16\bin\mvn.cmd" spring-boot:run
 ```
 
-### 3.1 Usuários
+## Perfis e Regras
 
-| Método | Rota                | Autenticação                  | Descrição                                    |
-|--------|---------------------|--------------------------------|-----------------------------------------------|
-| POST   | `/api/usuarios`     | nenhuma (pública)               | Cadastra um novo usuário (ALUNO ou COMISSAO) |
-| GET    | `/api/usuarios/{id}`| qualquer token válido           | Consulta um usuário pelo id                  |
-| GET    | `/api/usuarios`     | token de **COMISSAO**           | Lista todos os usuários                      |
-| PUT    | `/api/usuarios/{id}`| dono do recurso, ou COMISSAO    | Atualiza nome/e-mail/senha                   |
-| DELETE | `/api/usuarios/{id}`| somente o dono do recurso       | Exclusão lógica (vira `DESATIVADO`)          |
+Perfis validos:
 
-**Cadastro** — `POST /api/usuarios`
+- `ALUNO`
+- `FUNCIONARIO`
+
+`FUNCIONARIO` representa o usuario interno responsavel por avaliacao, gestao ou validacao de dados do sistema.
+
+Regras principais:
+
+- `ALUNO` consulta, atualiza e desativa apenas a propria conta.
+- `ALUNO` nao lista todos os usuarios.
+- `FUNCIONARIO` consulta, lista, atualiza e desativa usuarios.
+- Exclusao e sempre logica: o status muda para `DESATIVADO`.
+- Usuario `DESATIVADO` nao consegue fazer login.
+- Senhas sao armazenadas com BCrypt.
+
+## Endpoints
+
+### Autenticacao
+
+| Metodo | Rota | Descricao |
+|---|---|---|
+| `POST` | `/api/auth/login` | Autentica usuario e retorna JWT |
+| `POST` | `/api/auth/validar` | Valida JWT para os demais modulos |
+
+Login:
+
 ```json
 {
-  "nome": "Joao Pereira",
   "email": "joao.pereira@ufrrj.br",
-  "senha": "senha123",
-  "perfil": "ALUNO"
+  "senha": "senha123"
 }
 ```
-Resposta `201 Created`:
+
+Resposta:
+
 ```json
 {
-  "id": 2,
+  "accessToken": "jwt...",
+  "tokenType": "Bearer",
+  "expiraEm": "2026-06-28T13:00:00",
+  "usuarioId": 1,
   "nome": "Joao Pereira",
   "email": "joao.pereira@ufrrj.br",
   "perfil": "ALUNO",
-  "status": "ATIVO",
-  "dataCriacao": "2026-06-26T10:00:00",
-  "dataAtualizacao": "2026-06-26T10:00:00"
+  "status": "ATIVO"
 }
 ```
 
-### 3.2 Autenticação
+Validar token:
 
-**Login** — `POST /api/auth/login`
-```json
-{ "email": "joao.pereira@ufrrj.br", "senha": "senha123" }
-```
-Resposta `200 OK`:
 ```json
 {
-  "token": "47218390",
-  "usuarioId": 2,
-  "nome": "Joao Pereira",
-  "perfil": "ALUNO",
-  "expiraEm": "2026-06-26T12:00:00"
+  "token": "jwt..."
 }
 ```
-A partir daqui, envie o token no cabeçalho `Authorization` das próximas
-chamadas (aceita tanto o token puro quanto `Bearer <token>`).
 
-**Logout** — `POST /api/auth/logout` (cabeçalho `Authorization: <token>`) → `204 No Content`
+Token valido:
 
-**Validação de token (rota usada pelos Módulos B e C)** —
-`GET /api/auth/validar/{token}`
-
-Resposta quando válido:
 ```json
 {
   "valido": true,
-  "usuarioId": 2,
+  "usuarioId": 1,
+  "nome": "Joao Pereira",
+  "email": "joao.pereira@ufrrj.br",
   "perfil": "ALUNO",
-  "autorizado": null,
-  "expiraEm": "2026-06-26T12:00:00"
+  "status": "ATIVO"
 }
 ```
-Resposta quando inválido/expirado:
+
+Token invalido:
+
 ```json
-{ "valido": false, "usuarioId": null, "perfil": null, "autorizado": null, "expiraEm": null }
+{
+  "valido": false,
+  "motivo": "TOKEN_INVALIDO"
+}
 ```
 
-Você também pode exigir um perfil específico, útil quando o Módulo C quer
-garantir que só a comissão acesse uma rota:
+Motivos possiveis:
 
+- `TOKEN_AUSENTE`
+- `TOKEN_INVALIDO`
+- `TOKEN_EXPIRADO`
+- `USUARIO_DESATIVADO`
+- `USUARIO_NAO_ENCONTRADO`
+
+### Usuarios
+
+| Metodo | Rota | Acesso |
+|---|---|---|
+| `POST` | `/api/usuarios` | Publico |
+| `GET` | `/api/usuarios` | `FUNCIONARIO` |
+| `GET` | `/api/usuarios/{id}` | Proprio usuario ou `FUNCIONARIO` |
+| `PUT` | `/api/usuarios/{id}` | Proprio usuario ou `FUNCIONARIO` |
+| `PATCH` | `/api/usuarios/{id}` | Proprio usuario ou `FUNCIONARIO` |
+| `DELETE` | `/api/usuarios/{id}` | Proprio usuario ou `FUNCIONARIO` |
+
+Cadastro de aluno:
+
+```json
+{
+  "nome": "Joao Pereira",
+  "cpf": "123.456.789-00",
+  "celular": "(21) 99999-8888",
+  "dataNascimento": "2002-05-15",
+  "email": "joao.pereira@ufrrj.br",
+  "senha": "senha123",
+  "perfil": "ALUNO",
+  "detalhesPerfil": {
+    "matricula": "20260010123",
+    "curso": "Sistemas de Informacao",
+    "nivel": "Graduacao",
+    "periodoIngresso": "2026.1"
+  }
+}
 ```
-GET /api/auth/validar/{token}?perfilExigido=COMISSAO
+
+Cadastro de funcionario:
+
+```json
+{
+  "nome": "Profa. Maria Silva",
+  "cpf": "987.654.321-00",
+  "celular": "(21) 98888-7777",
+  "dataNascimento": "1980-05-20",
+  "email": "maria.silva@ufrrj.br",
+  "senha": "senha123",
+  "perfil": "FUNCIONARIO",
+  "detalhesPerfil": {
+    "siape": "3691232",
+    "tipo": "Docente",
+    "departamento": "Departamento de Computacao",
+    "instituto": "ICE",
+    "membroComissao": true
+  }
+}
 ```
-Nesse caso o campo `autorizado` vem `true`/`false` em vez de `null`.
 
-## 4. Como os Módulos B e C devem integrar
+Para rotas protegidas, envie:
 
-Cada requisição que o aluno ou a comissão fizer aos Módulos B/C deve trazer o
-token no cabeçalho `Authorization`. Antes de processar a regra de negócio,
-o módulo deve chamar este serviço:
-
-```
-GET http://localhost:8081/api/auth/validar/{token}
+```text
+Authorization: Bearer <accessToken>
 ```
 
-- Se `valido = false` → responder `401 Unauthorized` ao cliente.
-- Se `valido = true` → usar `usuarioId` e `perfil` retornados para aplicar as
-  regras de autorização daquele módulo (ex.: "este `usuarioId` é o dono deste
-  cadastro de participação?").
+## Banco e Migrations
 
-Isso é exatamente o que o enunciado pede: *"Os outros serviços devem ter
-disponível um mecanismo de confirmação para consultar se um token é válido e
-está autenticado."*
+O banco principal e PostgreSQL. O schema inicial e criado por Flyway em:
 
-## 5. Decisões de projeto (para a apresentação)
-
-- **Por que REST e não GraphQL?** Os Módulos B e C podem ser implementados em
-  pilhas diferentes; um endpoint REST simples de validação de token é o mais
-  fácil de consumir por qualquer stack, sem exigir um cliente GraphQL.
-- **Por que sem Spring Security completo?** O enunciado dispensa
-  explicitamente a parte de certificados e autoriza uma "função para
-  simplificar a autenticação". Optamos por um `TokenService` próprio (mapa em
-  memória) em vez de JWT, exatamente como a alternativa sugerida no enunciado.
-- **Por que H2 em arquivo, e não em memória?** Para que os dados sobrevivam a
-  reinicializações durante os testes de integração com os colegas dos
-  Módulos B e C.
-- **Senha sempre em hash (BCrypt)**, nunca armazenada em texto puro.
-- **Exclusão lógica reforçada em duas camadas**: o `DELETE` só aceita o
-  próprio `usuarioId` da sessão, e a validação de token também invalida a
-  sessão automaticamente se o usuário for desativado por outro caminho.
-
-## 6. Possíveis extensões (se quiserem ir além)
-
-- Trocar o token simples por JWT assinado (estrutura já isolada em
-  `TokenService`/`AuthService`, fácil de substituir sem tocar nos
-  controllers).
-- Persistir as sessões em uma tabela/Redis em vez de mapa em memória, para
-  sobreviver a reinícios do serviço.
-- Adicionar paginação em `GET /api/usuarios` quando a base crescer.
-
-## 7. Estrutura do projeto
-
+```text
+src/main/resources/db/migration/V1__create_usuarios.sql
 ```
-auth-service/
-├── pom.xml
-├── requests.http
-└── src/main/java/br/edu/ufrrj/si/authservice/
-    ├── AuthServiceApplication.java
-    ├── config/        (CORS, BCrypt, Swagger)
-    ├── controller/     (AuthController, UsuarioController)
-    ├── dto/            (records de request/response)
-    ├── exception/       (exceções + handler global)
-    ├── model/           (Usuario, Perfil, StatusUsuario)
-    ├── repository/      (UsuarioRepository)
-    └── service/         (UsuarioService, AuthService, TokenService, SessaoToken)
+
+Testes automatizados usam H2 com migration propria em:
+
+```text
+src/test/resources/db/migration-h2/V1__create_usuarios.sql
 ```
+
+## Testes
+
+```bash
+mvn test
+```
+
+Os testes cobrem cadastro, duplicidade de CPF/e-mail, login, validacao de token, token expirado, usuario desativado, autorizacao de aluno e permissoes de funcionario.
+
+## Arquivos Uteis
+
+- `requests.http`: exemplos prontos para REST Client.
+- `Dockerfile`: build da API.
+- `docker-compose.yml`: API + PostgreSQL.
+- `application.yml`: configuracao por variaveis de ambiente.

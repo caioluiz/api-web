@@ -3,16 +3,22 @@ package br.edu.ufrrj.si.authservice.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
-/**
- * Corpo da requisicao de atualizacao (PUT /api/usuarios/{id}).
- * Todos os campos sao opcionais: somente os preenchidos sao alterados.
- * Perfil e status NAO sao editaveis por esta rota (status so muda
- * via desativacao logica; perfil e definido apenas no cadastro).
- */
+import java.time.LocalDate;
+import java.util.Map;
+
 public record AtualizarUsuarioRequest(
 
         @Size(max = 150, message = "O nome deve ter no maximo 150 caracteres.")
         String nome,
+
+        String cpf,
+
+        @Size(max = 20, message = "O celular deve ter no maximo 20 caracteres.")
+        String celular,
+
+        LocalDate dataNascimento,
+
+        Map<String, Object> detalhesPerfil,
 
         @Email(message = "Informe um e-mail valido.")
         @Size(max = 150, message = "O e-mail deve ter no maximo 150 caracteres.")
