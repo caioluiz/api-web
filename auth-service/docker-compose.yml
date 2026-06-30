@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sisext-auth-db
+    environment:
+      POSTGRES_DB: sisext_si
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sisext_si"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: sisext-auth-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: sisext_si
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: change-this-secret-with-at-least-32-chars
+      JWT_EXPIRATION: 120
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+
+volumes:
+  postgres-data:

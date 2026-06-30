@@ -10,13 +10,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-/**
- * Conta de acesso ao sistema (aluno ou membro da comissao extensionista).
- * A senha e sempre persistida como hash BCrypt, nunca em texto puro.
- */
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -27,6 +28,19 @@ public class Usuario {
 
     @Column(nullable = false, length = 150)
     private String nome;
+
+    @Column(nullable = false, unique = true, length = 11)
+    private String cpf;
+
+    @Column(nullable = false, length = 20)
+    private String celular;
+
+    @Column(nullable = false)
+    private LocalDate dataNascimento;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false)
+    private Map<String, Object> detalhesPerfil = new LinkedHashMap<>();
 
     @Column(nullable = false, unique = true, length = 150)
     private String email;
@@ -83,6 +97,38 @@ public class Usuario {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public String getCelular() {
+        return celular;
+    }
+
+    public void setCelular(String celular) {
+        this.celular = celular;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public Map<String, Object> getDetalhesPerfil() {
+        return detalhesPerfil;
+    }
+
+    public void setDetalhesPerfil(Map<String, Object> detalhesPerfil) {
+        this.detalhesPerfil = detalhesPerfil;
     }
 
     public String getEmail() {

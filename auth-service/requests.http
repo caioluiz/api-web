@@ -1,17 +1,29 @@
 ### Auth Service - Modulo A - Requisicoes de exemplo
-### Pode ser executado com a extensao "REST Client" (VS Code) ou similar no IntelliJ.
+### Use com a extensao REST Client do VS Code ou equivalente.
 
 @host = http://localhost:8081
+@tokenAluno = SUBSTITUA_PELO_TOKEN_ALUNO
+@tokenFuncionario = SUBSTITUA_PELO_TOKEN_FUNCIONARIO
 
-### 1) Cadastrar um usuario da COMISSAO
+### 1) Cadastrar um usuario FUNCIONARIO
 POST {{host}}/api/usuarios
 Content-Type: application/json
 
 {
   "nome": "Profa. Maria Silva",
+  "cpf": "987.654.321-00",
+  "celular": "(21) 98888-7777",
+  "dataNascimento": "1980-05-20",
   "email": "maria.silva@ufrrj.br",
   "senha": "senha123",
-  "perfil": "COMISSAO"
+  "perfil": "FUNCIONARIO",
+  "detalhesPerfil": {
+    "siape": "3691232",
+    "tipo": "Docente",
+    "departamento": "Departamento de Computacao",
+    "instituto": "ICE",
+    "membroComissao": true
+  }
 }
 
 ### 2) Cadastrar um usuario ALUNO
@@ -20,12 +32,21 @@ Content-Type: application/json
 
 {
   "nome": "Joao Pereira",
+  "cpf": "123.456.789-00",
+  "celular": "(21) 99999-8888",
+  "dataNascimento": "2002-05-15",
   "email": "joao.pereira@ufrrj.br",
   "senha": "senha123",
-  "perfil": "ALUNO"
+  "perfil": "ALUNO",
+  "detalhesPerfil": {
+    "matricula": "20260010123",
+    "curso": "Sistemas de Informacao",
+    "nivel": "Graduacao",
+    "periodoIngresso": "2026.1"
+  }
 }
 
-### 3) Login do aluno (copie o "token" da resposta para os passos seguintes)
+### 3) Login do aluno
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
@@ -34,33 +55,41 @@ Content-Type: application/json
   "senha": "senha123"
 }
 
-### 4) Validar um token (e o que os Modulos B e C vao chamar)
-GET {{host}}/api/auth/validar/SUBSTITUA_PELO_TOKEN
-
-### 4.1) Validar exigindo perfil COMISSAO (uso tipico em rota da Comissao)
-GET {{host}}/api/auth/validar/SUBSTITUA_PELO_TOKEN?perfilExigido=COMISSAO
-
-### 5) Consultar um usuario pelo id (qualquer perfil autenticado)
-GET {{host}}/api/usuarios/2
-Authorization: SUBSTITUA_PELO_TOKEN
-
-### 6) Listar todos os usuarios (somente COMISSAO)
-GET {{host}}/api/usuarios
-Authorization: SUBSTITUA_PELO_TOKEN_DA_COMISSAO
-
-### 7) Atualizar o proprio cadastro
-PUT {{host}}/api/usuarios/2
-Authorization: SUBSTITUA_PELO_TOKEN
+### 4) Login do funcionario
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "nome": "Joao Pereira da Silva"
+  "email": "maria.silva@ufrrj.br",
+  "senha": "senha123"
 }
 
-### 8) Desativar (exclusao logica) a propria conta
-DELETE {{host}}/api/usuarios/2
-Authorization: SUBSTITUA_PELO_TOKEN
+### 5) Validar token
+POST {{host}}/api/auth/validar
+Content-Type: application/json
 
-### 9) Logout
-POST {{host}}/api/auth/logout
-Authorization: SUBSTITUA_PELO_TOKEN
+{
+  "token": "{{tokenAluno}}"
+}
+
+### 6) Consultar o proprio usuario como ALUNO
+GET {{host}}/api/usuarios/2
+Authorization: Bearer {{tokenAluno}}
+
+### 7) Listar todos os usuarios como FUNCIONARIO
+GET {{host}}/api/usuarios
+Authorization: Bearer {{tokenFuncionario}}
+
+### 8) Atualizar usuario
+PATCH {{host}}/api/usuarios/2
+Authorization: Bearer {{tokenAluno}}
+Content-Type: application/json
+
+{
+  "nome": "Joao Pereira da Silva",
+  "celular": "21988887777"
+}
+
+### 9) Desativar usuario
+DELETE {{host}}/api/usuarios/2
+Authorization: Bearer {{tokenFuncionario}}

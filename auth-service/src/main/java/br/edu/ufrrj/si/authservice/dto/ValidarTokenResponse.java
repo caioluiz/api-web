@@ -1,29 +1,26 @@
 package br.edu.ufrrj.si.authservice.dto;
 
 import br.edu.ufrrj.si.authservice.model.Perfil;
+import br.edu.ufrrj.si.authservice.model.StatusUsuario;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.time.LocalDateTime;
-
-/**
- * Resposta do endpoint GET /api/auth/validar/{token}.
- *
- * Este e o "contrato" que os Modulos B (Servico do Aluno) e C
- * (Servico da Comissao) devem consumir para checar se um token
- * e valido e, opcionalmente, se pertence ao perfil exigido pela
- * rota que esta sendo protegida (parametro ?perfilExigido=).
- *
- * Quando o token e invalido/expirado: valido=false e os demais
- * campos vem nulos.
- */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ValidarTokenResponse(
         boolean valido,
+        String motivo,
         Long usuarioId,
+        String nome,
+        String email,
         Perfil perfil,
-        Boolean autorizado,
-        LocalDateTime expiraEm
+        StatusUsuario status
 ) {
 
-    public static ValidarTokenResponse invalido() {
-        return new ValidarTokenResponse(false, null, null, null, null);
+    public static ValidarTokenResponse valido(Long usuarioId, String nome, String email,
+                                              Perfil perfil, StatusUsuario status) {
+        return new ValidarTokenResponse(true, null, usuarioId, nome, email, perfil, status);
+    }
+
+    public static ValidarTokenResponse invalido(String motivo) {
+        return new ValidarTokenResponse(false, motivo, null, null, null, null, null);
     }
 }
