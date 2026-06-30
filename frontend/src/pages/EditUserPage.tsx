@@ -15,6 +15,7 @@ import {
   normalizeDetails,
   validateDetails
 } from "../utils/profileDetails";
+import { getPerfilLabel } from "../utils/labels";
 
 interface EditForm {
   nome: string;
@@ -50,7 +51,7 @@ export function EditUserPage() {
 
       const numericId = Number(id);
       if (!numericId) {
-        setError("ID de usuario invalido.");
+        setError("ID de usuário inválido.");
         setIsLoading(false);
         return;
       }
@@ -91,7 +92,7 @@ export function EditUserPage() {
     if (!form.dataNascimento) return "Informe a data de nascimento.";
     if (!form.email.trim()) return "Informe o e-mail.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      return "Informe um e-mail valido.";
+      return "Informe um e-mail válido.";
     }
     return validateDetails(perfil, details);
   }
@@ -105,7 +106,7 @@ export function EditUserPage() {
     const validationError = validateForm();
 
     if (!numericId) {
-      setError("ID de usuario invalido.");
+      setError("ID de usuário inválido.");
       return;
     }
 
@@ -129,7 +130,7 @@ export function EditUserPage() {
       setUser(response);
       setPerfil(response.perfil);
       setDetails(mergeDetailsForProfile(response.perfil, response.detalhesPerfil));
-      setMessage("Usuario atualizado com sucesso.");
+      setMessage("Usuário atualizado com sucesso.");
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -142,8 +143,8 @@ export function EditUserPage() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Edicao administrativa</p>
-            <h1>Editar usuario</h1>
+            <p className="eyebrow">Edição administrativa</p>
+            <h1>Editar usuário</h1>
           </div>
           <Link className="button button-secondary" to="/usuarios">
             <ArrowLeft size={18} aria-hidden="true" />
@@ -152,7 +153,7 @@ export function EditUserPage() {
         </div>
 
         {isLoading ? (
-          <p>Carregando usuario...</p>
+          <p>Carregando usuário...</p>
         ) : (
           <>
             <MessageBanner kind="error">{error}</MessageBanner>
@@ -160,68 +161,80 @@ export function EditUserPage() {
 
             {user && (
               <form className="form" onSubmit={handleSubmit}>
-                <div className="form-grid two-columns">
-                  <label>
-                    Nome
-                    <input
-                      value={form.nome}
-                      onChange={(event) => setField("nome", event.target.value)}
-                      required
-                    />
-                  </label>
+                <fieldset className="form-section">
+                  <legend>Dados pessoais</legend>
+                  <div className="form-grid two-columns">
+                    <label>
+                      Nome
+                      <input
+                        value={form.nome}
+                        onChange={(event) => setField("nome", event.target.value)}
+                        autoComplete="name"
+                        required
+                      />
+                    </label>
 
-                  <label>
-                    CPF
-                    <input
-                      value={form.cpf}
-                      onChange={(event) => setField("cpf", event.target.value)}
-                      required
-                    />
-                  </label>
+                    <label>
+                      CPF
+                      <input
+                        value={form.cpf}
+                        onChange={(event) => setField("cpf", event.target.value)}
+                        inputMode="numeric"
+                        required
+                      />
+                    </label>
 
-                  <label>
-                    Celular
-                    <input
-                      value={form.celular}
-                      onChange={(event) => setField("celular", event.target.value)}
-                      required
-                    />
-                  </label>
+                    <label>
+                      Celular
+                      <input
+                        value={form.celular}
+                        onChange={(event) => setField("celular", event.target.value)}
+                        autoComplete="tel"
+                        required
+                      />
+                    </label>
 
-                  <label>
-                    Data de nascimento
-                    <input
-                      type="date"
-                      value={form.dataNascimento}
-                      onChange={(event) =>
-                        setField("dataNascimento", event.target.value)
-                      }
-                      required
-                    />
-                  </label>
+                    <label>
+                      Data de nascimento
+                      <input
+                        type="date"
+                        value={form.dataNascimento}
+                        onChange={(event) =>
+                          setField("dataNascimento", event.target.value)
+                        }
+                        required
+                      />
+                    </label>
 
-                  <label>
-                    E-mail
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={(event) => setField("email", event.target.value)}
-                      required
-                    />
-                  </label>
+                    <label>
+                      E-mail
+                      <input
+                        type="email"
+                        value={form.email}
+                        onChange={(event) => setField("email", event.target.value)}
+                        autoComplete="email"
+                        required
+                      />
+                    </label>
+                  </div>
+                </fieldset>
 
-                  <label>
-                    Perfil
-                    <input value={perfil} readOnly />
-                  </label>
+                <fieldset className="form-section">
+                  <legend>Perfil e status</legend>
+                  <div className="form-grid two-columns">
+                    <label>
+                      Perfil
+                      <div className="readonly-field">{getPerfilLabel(perfil)}</div>
+                    </label>
 
-                  <label>
-                    Status
-                    <div className="readonly-field">
-                      <StatusBadge value={user.status} />
-                    </div>
-                  </label>
-                </div>
+                    <label>
+                      Status
+                      <div className="readonly-field">
+                        <StatusBadge value={user.status} />
+                      </div>
+                    </label>
+                  </div>
+                </fieldset>
 
                 <ProfileDetailsFields
                   perfil={perfil}
@@ -230,13 +243,13 @@ export function EditUserPage() {
                 />
 
                 <p className="muted">
-                  Perfil e status nao sao alterados nesta rota. A API altera
-                  status apenas pela desativacao logica.
+                  Perfil e status não são alterados nesta rota. A API altera o
+                  status apenas pela desativação lógica.
                 </p>
 
                 <button className="button button-primary" type="submit" disabled={isSubmitting}>
                   <Save size={18} aria-hidden="true" />
-                  {isSubmitting ? "Salvando..." : "Salvar alteracoes"}
+                  {isSubmitting ? "Salvando..." : "Salvar alterações"}
                 </button>
               </form>
             )}

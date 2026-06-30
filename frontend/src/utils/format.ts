@@ -15,5 +15,12 @@ export function formatDate(value?: string): string {
     return "-";
   }
 
-  return value.split("T")[0];
+  const [date] = value.split("T");
+  const [year, month, day] = date.split("-");
+
+  if (!year || !month || !day) {
+    return value;
+  }
+
+  return `${day}/${month}/${year}`;
 }

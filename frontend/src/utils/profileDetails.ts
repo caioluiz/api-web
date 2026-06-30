@@ -47,7 +47,7 @@ export function validateDetails(perfil: Perfil, details: DetalhesPerfil): string
   if (perfil === "FUNCIONARIO") {
     const required = ["siape", "tipo", "departamento", "instituto"] as const;
     const missing = required.find((field) => !String(normalized[field] || "").trim());
-    return missing ? "Preencha todos os detalhes do funcionario." : null;
+    return missing ? "Preencha todos os detalhes do funcionário." : null;
   }
 
   const required = ["matricula", "curso", "nivel", "periodoIngresso"] as const;

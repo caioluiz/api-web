@@ -1,6 +1,7 @@
 import {
   DatabaseZap,
   KeyRound,
+  ListChecks,
   ShieldCheck,
   Trash2,
   UserCog,
@@ -10,28 +11,28 @@ import { Link } from "react-router-dom";
 
 const features = [
   {
-    title: "Gestao de Usuarios",
-    text: "Cadastro, consulta, atualizacao e governanca dos dados do Modulo A.",
+    title: "Gestão de usuários",
+    text: "Cadastro, consulta, atualização e desativação lógica em uma API real.",
     icon: Users
   },
   {
-    title: "Autenticacao JWT",
-    text: "Login real contra o backend Spring Boot e armazenamento do token no navegador.",
+    title: "Autenticação JWT",
+    text: "Login contra o backend Spring Boot e armazenamento do token na sessão.",
     icon: KeyRound
   },
   {
-    title: "Perfis ALUNO e FUNCIONARIO",
-    text: "FUNCIONARIO representa o usuario interno avaliador/administrativo.",
+    title: "Perfis de acesso",
+    text: "Aluno usa o próprio cadastro; Funcionário gerencia usuários e permissões.",
     icon: UserCog
   },
   {
-    title: "Validacao de Token",
-    text: "Consulta publica para outros modulos confirmarem autenticacao e perfil.",
+    title: "Validação de token",
+    text: "Consulta pública para outros módulos confirmarem autenticação e perfil.",
     icon: ShieldCheck
   },
   {
-    title: "Exclusao Logica",
-    text: "DELETE desativa usuarios sem remover o historico do banco.",
+    title: "Exclusão lógica",
+    text: "DELETE desativa usuários sem remover o histórico do banco.",
     icon: Trash2
   }
 ];
@@ -41,23 +42,26 @@ export function HomePage() {
     <main className="page-shell">
       <section className="intro-panel">
         <div>
-          <p className="eyebrow">Modulo A</p>
-          <h1>Frontend de demonstracao do Auth Service</h1>
+          <p className="eyebrow">Módulo A</p>
+          <h1>Gestão de usuários e autenticação do SisExt-SI</h1>
           <p className="lead">
-            Esta interface consome a API real de Gestao de Usuarios e
-            Autenticacao do SisExt-SI para demonstrar cadastro, login, JWT,
-            validacao de token e gerenciamento administrativo.
+            Use esta interface para demonstrar cadastro, login, validação de JWT
+            e administração de contas com as regras reais do Módulo A.
           </p>
         </div>
 
         <div className="intro-actions">
           <Link className="button button-primary" to="/cadastro">
             <Users size={18} aria-hidden="true" />
-            Cadastrar usuario
+            Cadastrar usuário
           </Link>
           <Link className="button button-secondary" to="/login">
             <KeyRound size={18} aria-hidden="true" />
             Fazer login
+          </Link>
+          <Link className="button button-secondary" to="/validador">
+            <ShieldCheck size={18} aria-hidden="true" />
+            Validar token
           </Link>
         </div>
       </section>
@@ -78,13 +82,24 @@ export function HomePage() {
       <section className="panel split-panel">
         <DatabaseZap size={28} aria-hidden="true" />
         <div>
-          <h2>Integracao com os Modulos B e C</h2>
+          <h2>Integração com os Módulos B e C</h2>
           <p className="muted">
-            Os modulos de participacao, integralizacao e parecer ainda nao
-            estao implementados neste frontend. Mesmo assim, este Modulo A ja
-            fornece autenticacao e validacao de acesso para que eles consumam
-            tokens JWT no futuro.
+            Os módulos de participação, integralização e parecer ainda não estão
+            implementados neste frontend. Mesmo assim, o Módulo A já fornece
+            autenticação e validação de acesso para que eles consumam tokens JWT.
           </p>
+        </div>
+      </section>
+
+      <section className="panel split-panel">
+        <ListChecks size={28} aria-hidden="true" />
+        <div>
+          <h2>Fluxo recomendado para apresentação</h2>
+          <ol className="workflow-list">
+            <li>Cadastre um usuário Aluno e um usuário Funcionário.</li>
+            <li>Entre como Funcionário para listar, editar e desativar usuários.</li>
+            <li>Copie o JWT no dashboard e valide o token no validador público.</li>
+          </ol>
         </div>
       </section>
     </main>

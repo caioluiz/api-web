@@ -21,28 +21,28 @@ export function Navigation() {
 
   return (
     <header className="topbar">
-      <nav className="nav-shell" aria-label="Navegacao principal">
+      <nav className="nav-shell" aria-label="Navegação principal">
         <NavLink to="/" className="brand">
           <ShieldCheck size={22} aria-hidden="true" />
-          <span>SisExt-SI Auth</span>
+          <span>SisExt-SI</span>
         </NavLink>
 
         <div className="nav-links">
           <NavLink to="/" className="nav-link">
             <Home size={18} aria-hidden="true" />
-            Inicio
+            Início
           </NavLink>
 
           <NavLink to="/validador" className="nav-link">
             <ShieldCheck size={18} aria-hidden="true" />
-            Validador
+            Validação
           </NavLink>
 
           {!user && (
             <>
               <NavLink to="/login" className="nav-link">
                 <LogIn size={18} aria-hidden="true" />
-                Login
+                Entrar
               </NavLink>
               <NavLink to="/cadastro" className="nav-link">
                 <UserPlus size={18} aria-hidden="true" />
@@ -61,7 +61,7 @@ export function Navigation() {
               {user.perfil === "FUNCIONARIO" && (
                 <NavLink to="/usuarios" className="nav-link">
                   <Users size={18} aria-hidden="true" />
-                  Usuarios
+                  Usuários
                 </NavLink>
               )}
 

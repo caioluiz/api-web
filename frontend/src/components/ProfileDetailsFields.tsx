@@ -21,7 +21,7 @@ export function ProfileDetailsFields({
   if (perfil === "FUNCIONARIO") {
     return (
       <fieldset className="form-section">
-        <legend>Detalhes do perfil FUNCIONARIO</legend>
+        <legend>Detalhes do perfil Funcionário</legend>
         <div className="form-grid two-columns">
           <label>
             SIAPE
@@ -40,7 +40,7 @@ export function ProfileDetailsFields({
               onChange={(event) => updateField("tipo", event.target.value)}
             >
               <option value="Docente">Docente</option>
-              <option value="Tecnico-Administrativo">Tecnico-Administrativo</option>
+              <option value="Tecnico-Administrativo">Técnico-Administrativo</option>
             </select>
           </label>
 
@@ -49,7 +49,7 @@ export function ProfileDetailsFields({
             <input
               value={String(details.departamento || "")}
               onChange={(event) => updateField("departamento", event.target.value)}
-              placeholder="Departamento de Computacao"
+              placeholder="Departamento de Computação"
               required
             />
           </label>
@@ -73,7 +73,7 @@ export function ProfileDetailsFields({
               updateField("membroComissao", event.target.checked)
             }
           />
-          Membro da comissao/coordenação
+          Membro da comissão/coordenação
         </label>
       </fieldset>
     );
@@ -84,7 +84,7 @@ export function ProfileDetailsFields({
       <legend>Detalhes do perfil ALUNO</legend>
       <div className="form-grid two-columns">
         <label>
-          Matricula
+          Matrícula
           <input
             value={String(details.matricula || "")}
             onChange={(event) => updateField("matricula", event.target.value)}
@@ -98,25 +98,25 @@ export function ProfileDetailsFields({
           <input
             value={String(details.curso || "")}
             onChange={(event) => updateField("curso", event.target.value)}
-            placeholder="Sistemas de Informacao"
+            placeholder="Sistemas de Informação"
             required
           />
         </label>
 
         <label>
-          Nivel
+          Nível
           <select
             value={String(details.nivel || "Graduacao")}
             onChange={(event) => updateField("nivel", event.target.value)}
           >
-            <option value="Graduacao">Graduacao</option>
+            <option value="Graduacao">Graduação</option>
             <option value="Mestrado">Mestrado</option>
             <option value="Doutorado">Doutorado</option>
           </select>
         </label>
 
         <label>
-          Periodo de ingresso
+          Período de ingresso
           <input
             value={String(details.periodoIngresso || "")}
             onChange={(event) => updateField("periodoIngresso", event.target.value)}

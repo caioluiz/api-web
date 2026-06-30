@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { KeyRound, LogIn } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MessageBanner } from "../components/MessageBanner";
 import { useAuth } from "../context/AuthContext";
 import { getApiErrorMessage } from "../utils/errors";
@@ -51,10 +51,10 @@ export function LoginPage() {
   return (
     <main className="page-shell narrow">
       <section className="panel">
-        <p className="eyebrow">Autenticacao</p>
-        <h1>Entrar no Modulo A</h1>
+        <p className="eyebrow">Autenticação</p>
+        <h1>Acessar o Módulo A</h1>
         <p className="muted">
-          Use um usuario cadastrado para receber um JWT do backend Spring Boot.
+          Use seu e-mail e senha para autenticação e emissão do token JWT.
         </p>
 
         <MessageBanner kind="error">{error}</MessageBanner>
@@ -91,6 +91,10 @@ export function LoginPage() {
             {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        <p className="muted centered-copy">
+          Ainda não tem conta? <Link className="inline-link" to="/cadastro">Cadastre um usuário</Link>.
+        </p>
       </section>
     </main>
   );

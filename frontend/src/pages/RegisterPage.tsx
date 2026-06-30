@@ -54,7 +54,7 @@ export function RegisterPage() {
     if (!form.dataNascimento) return "Informe a data de nascimento.";
     if (!form.email.trim()) return "Informe o e-mail.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      return "Informe um e-mail valido.";
+      return "Informe um e-mail válido.";
     }
     if (!form.senha.trim()) return "Informe a senha.";
     if (form.senha.length < 6) return "A senha deve ter pelo menos 6 caracteres.";
@@ -83,7 +83,7 @@ export function RegisterPage() {
         email: form.email.trim().toLowerCase(),
         detalhesPerfil: normalizeDetails(form.perfil, form.detalhesPerfil)
       });
-      setSuccess("Usuario cadastrado com sucesso. Agora voce ja pode fazer login.");
+      setSuccess("Usuário cadastrado com sucesso. Agora você já pode fazer login.");
       setForm(initialForm);
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -95,89 +95,103 @@ export function RegisterPage() {
   return (
     <main className="page-shell">
       <section className="panel">
-        <p className="eyebrow">Cadastro publico</p>
-        <h1>Cadastrar usuario</h1>
+        <p className="eyebrow">Cadastro público</p>
+        <h1>Cadastrar usuário</h1>
         <p className="muted">
-          Crie usuarios ALUNO ou FUNCIONARIO para demonstrar as regras do Auth
-          Service.
+          Crie contas de Aluno ou Funcionário para demonstrar as regras de
+          autenticação, autorização e validação de token.
         </p>
 
         <MessageBanner kind="error">{error}</MessageBanner>
         <MessageBanner kind="success">{success}</MessageBanner>
 
         <form className="form" onSubmit={handleSubmit}>
-          <div className="form-grid two-columns">
-            <label>
-              Nome
-              <input
-                value={form.nome}
-                onChange={(event) => setField("nome", event.target.value)}
-                required
-              />
-            </label>
+          <fieldset className="form-section">
+            <legend>Dados pessoais</legend>
+            <div className="form-grid two-columns">
+              <label>
+                Nome
+                <input
+                  value={form.nome}
+                  onChange={(event) => setField("nome", event.target.value)}
+                  autoComplete="name"
+                  required
+                />
+              </label>
 
-            <label>
-              CPF
-              <input
-                value={form.cpf}
-                onChange={(event) => setField("cpf", event.target.value)}
-                placeholder="000.000.000-00"
-                required
-              />
-            </label>
+              <label>
+                CPF
+                <input
+                  value={form.cpf}
+                  onChange={(event) => setField("cpf", event.target.value)}
+                  placeholder="000.000.000-00"
+                  inputMode="numeric"
+                  required
+                />
+              </label>
 
-            <label>
-              Celular
-              <input
-                value={form.celular}
-                onChange={(event) => setField("celular", event.target.value)}
-                placeholder="(21) 99999-9999"
-                required
-              />
-            </label>
+              <label>
+                Celular
+                <input
+                  value={form.celular}
+                  onChange={(event) => setField("celular", event.target.value)}
+                  placeholder="(21) 99999-9999"
+                  autoComplete="tel"
+                  required
+                />
+              </label>
 
-            <label>
-              Data de nascimento
-              <input
-                type="date"
-                value={form.dataNascimento}
-                onChange={(event) => setField("dataNascimento", event.target.value)}
-                required
-              />
-            </label>
+              <label>
+                Data de nascimento
+                <input
+                  type="date"
+                  value={form.dataNascimento}
+                  onChange={(event) => setField("dataNascimento", event.target.value)}
+                  required
+                />
+              </label>
+            </div>
+          </fieldset>
 
-            <label>
-              E-mail
-              <input
-                type="email"
-                value={form.email}
-                onChange={(event) => setField("email", event.target.value)}
-                required
-              />
-            </label>
+          <fieldset className="form-section">
+            <legend>Acesso</legend>
+            <div className="form-grid two-columns">
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setField("email", event.target.value)}
+                  autoComplete="email"
+                  required
+                />
+              </label>
 
-            <label>
-              Senha
-              <input
-                type="password"
-                value={form.senha}
-                onChange={(event) => setField("senha", event.target.value)}
-                minLength={6}
-                required
-              />
-            </label>
+              <label>
+                Senha
+                <input
+                  type="password"
+                  value={form.senha}
+                  onChange={(event) => setField("senha", event.target.value)}
+                  minLength={6}
+                  autoComplete="new-password"
+                  required
+                />
+                <small className="field-hint">Use pelo menos 6 caracteres.</small>
+              </label>
 
-            <label>
-              Perfil
-              <select
-                value={form.perfil}
-                onChange={(event) => changeProfile(event.target.value as Perfil)}
-              >
-                <option value="ALUNO">ALUNO</option>
-                <option value="FUNCIONARIO">FUNCIONARIO</option>
-              </select>
-            </label>
-          </div>
+              <label>
+                Perfil
+                <select
+                  value={form.perfil}
+                  onChange={(event) => changeProfile(event.target.value as Perfil)}
+                >
+                  <option value="ALUNO">Aluno</option>
+                  <option value="FUNCIONARIO">Funcionário</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
 
           <ProfileDetailsFields
             perfil={form.perfil}

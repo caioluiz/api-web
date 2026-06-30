@@ -47,10 +47,10 @@ export default function App() {
           element={
             <main className="page-shell">
               <section className="panel">
-                <p className="eyebrow">Rota nao encontrada</p>
-                <h1>Esta tela nao existe</h1>
+                <p className="eyebrow">Rota não encontrada</p>
+                <h1>Esta tela não existe</h1>
                 <p className="muted">
-                  Use a navegacao superior para voltar ao fluxo de demonstracao.
+                  Use a navegação superior para voltar ao fluxo de demonstração.
                 </p>
               </section>
             </main>

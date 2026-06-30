@@ -35,7 +35,7 @@ function userFromLogin(response: LoginResponse): AuthUser {
 }
 
 function readStoredUser(): AuthUser | null {
-  const raw = localStorage.getItem(USER_KEY);
+  const raw = sessionStorage.getItem(USER_KEY);
 
   if (!raw) {
     return null;
@@ -44,28 +44,28 @@ function readStoredUser(): AuthUser | null {
   try {
     return JSON.parse(raw) as AuthUser;
   } catch {
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(USER_KEY);
     return null;
   }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY)
+    sessionStorage.getItem(TOKEN_KEY)
   );
   const [user, setUser] = useState<AuthUser | null>(readStoredUser);
   const [isChecking, setIsChecking] = useState(Boolean(token));
 
   const signOut = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
     setToken(null);
     setUser(null);
   }, []);
 
   const persistSession = useCallback((jwt: string, authUser: AuthUser) => {
-    localStorage.setItem(TOKEN_KEY, jwt);
-    localStorage.setItem(USER_KEY, JSON.stringify(authUser));
+    sessionStorage.setItem(TOKEN_KEY, jwt);
+    sessionStorage.setItem(USER_KEY, JSON.stringify(authUser));
     setToken(jwt);
     setUser(authUser);
   }, []);
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const validateCurrentToken = useCallback(async () => {
-    const currentToken = localStorage.getItem(TOKEN_KEY);
+    const currentToken = sessionStorage.getItem(TOKEN_KEY);
 
     if (!currentToken) {
       signOut();

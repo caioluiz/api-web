@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { validarToken } from "../services/authService";
 import type { ValidarTokenResponse } from "../types";
 import { getApiErrorMessage } from "../utils/errors";
+import { getStatusLabel, getTokenReasonLabel } from "../utils/labels";
 
 export function TokenValidatorPage() {
   const { token } = useAuth();
@@ -45,13 +46,13 @@ export function TokenValidatorPage() {
   }
 
   return (
-    <main className="page-shell">
+    <main className="page-shell validator-shell">
       <section className="panel">
-        <p className="eyebrow">Validacao publica</p>
-        <h1>Validador de Token</h1>
+        <p className="eyebrow">Validação pública</p>
+        <h1>Validação de token</h1>
         <p className="muted">
-          Cole qualquer JWT emitido pelo Modulo A para conferir se ele esta
-          valido, expirado ou associado a um usuario desativado.
+          Cole qualquer JWT emitido pelo Módulo A para conferir se ele está
+          válido, expirado ou associado a um usuário desativado.
         </p>
 
         <MessageBanner kind="error">{error}</MessageBanner>
@@ -79,7 +80,7 @@ export function TokenValidatorPage() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Resultado</p>
-              <h2>{result.valido ? "Token valido" : "Token invalido"}</h2>
+              <h2>{result.valido ? "Token válido" : "Token inválido"}</h2>
             </div>
             {result.perfil && <StatusBadge value={result.perfil} />}
           </div>
@@ -100,12 +101,12 @@ export function TokenValidatorPage() {
               </div>
               <div>
                 <span>Status</span>
-                <strong>{result.status}</strong>
+                <strong>{getStatusLabel(result.status)}</strong>
               </div>
             </div>
           ) : (
             <MessageBanner kind="error">
-              {result.motivo || "TOKEN_INVALIDO"}
+              {getTokenReasonLabel(result.motivo)}
             </MessageBanner>
           )}
         </section>

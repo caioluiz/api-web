@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import type { ValidarTokenResponse } from "../types";
 import { getApiErrorMessage } from "../utils/errors";
 import { summarizeToken } from "../utils/format";
+import { getPerfilLabel, getStatusLabel, getTokenReasonLabel } from "../utils/labels";
 
 export function DashboardPage() {
   const { token, user, signOut, validateCurrentToken } = useAuth();
@@ -50,9 +51,9 @@ export function DashboardPage() {
       setValidation(response);
 
       if (response?.valido) {
-        setMessage("Token atual valido e autenticado.");
+        setMessage("Token atual válido e autenticado.");
       } else {
-        setError(response?.motivo || "Token invalido.");
+        setError(getTokenReasonLabel(response?.motivo));
       }
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -67,7 +68,7 @@ export function DashboardPage() {
       setMessage("Token copiado.");
       setError(null);
     } catch {
-      setError("Nao foi possivel copiar o token.");
+      setError("Não foi possível copiar o token.");
     }
   }
 
@@ -86,7 +87,7 @@ export function DashboardPage() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Dashboard</p>
-            <h1>Usuario autenticado</h1>
+            <h1>Usuário autenticado</h1>
           </div>
           <StatusBadge value={user.perfil} />
         </div>
@@ -105,11 +106,11 @@ export function DashboardPage() {
           </div>
           <div>
             <span>Perfil</span>
-            <strong>{user.perfil}</strong>
+            <strong>{getPerfilLabel(user.perfil)}</strong>
           </div>
           <div>
             <span>Status</span>
-            <strong>{user.status}</strong>
+            <strong>{getStatusLabel(user.status)}</strong>
           </div>
           <div className="wide">
             <span>Token JWT</span>
@@ -138,19 +139,19 @@ export function DashboardPage() {
         <div>
           {user.perfil === "ALUNO" ? (
             <>
-              <h2>Area do Aluno</h2>
+              <h2>Área do Aluno</h2>
               <p className="muted">
-                Este usuario possui acesso de ALUNO. Os modulos de participacao
-                e integralizacao ainda nao estao implementados, mas este token
-                podera ser usado futuramente para autenticar chamadas ao Modulo B.
+                Este usuário possui acesso de Aluno. Os módulos de participação
+                e integralização ainda não estão implementados, mas este token
+                poderá autenticar chamadas futuras ao Módulo B.
               </p>
             </>
           ) : (
             <>
-              <h2>Area do Funcionario</h2>
+              <h2>Área do Funcionário</h2>
               <p className="muted">
-                Este usuario possui acesso administrativo. Este perfil representa
-                o usuario interno responsavel por avaliar/gerenciar informacoes
+                Este usuário possui acesso administrativo. Este perfil representa
+                o usuário interno responsável por avaliar e gerenciar informações
                 do sistema.
               </p>
             </>
@@ -160,9 +161,9 @@ export function DashboardPage() {
 
       {validation && (
         <section className="panel compact-panel">
-          <h2>Ultima validacao</h2>
+          <h2>Última validação</h2>
           <p className="muted">
-            Resultado: {validation.valido ? "token valido" : validation.motivo}
+            Resultado: {validation.valido ? "token válido" : getTokenReasonLabel(validation.motivo)}
           </p>
         </section>
       )}

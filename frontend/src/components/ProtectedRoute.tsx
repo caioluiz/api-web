@@ -2,6 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import type { Perfil } from "../types";
 import { useAuth } from "../context/AuthContext";
+import { getPerfilLabel } from "../utils/labels";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,7 +20,7 @@ export function ProtectedRoute({
     return (
       <main className="page-shell">
         <section className="panel">
-          <p>Validando sessao...</p>
+          <p>Validando sessão...</p>
         </section>
       </main>
     );
@@ -34,10 +35,10 @@ export function ProtectedRoute({
       <main className="page-shell">
         <section className="panel">
           <p className="eyebrow">Acesso restrito</p>
-          <h1>Acesso permitido apenas para FUNCIONARIO</h1>
+          <h1>Acesso permitido apenas para Funcionário</h1>
           <p className="muted">
-            O usuario autenticado possui perfil {user.perfil} e nao pode acessar
-            a listagem administrativa de usuarios.
+            O usuário autenticado possui perfil {getPerfilLabel(user.perfil)} e não
+            pode acessar a listagem administrativa de usuários.
           </p>
         </section>
       </main>

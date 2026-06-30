@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Eye, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { Eye, Pencil, RefreshCw, Trash2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MessageBanner } from "../components/MessageBanner";
 import { StatusBadge } from "../components/StatusBadge";
@@ -10,6 +10,7 @@ import {
 import type { Usuario } from "../types";
 import { getApiErrorMessage } from "../utils/errors";
 import { formatDate } from "../utils/format";
+import { getPerfilLabel, getProfileDetailEntries } from "../utils/labels";
 
 export function UsersPage() {
   const [users, setUsers] = useState<Usuario[]>([]);
@@ -18,6 +19,9 @@ export function UsersPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionId, setActionId] = useState<number | null>(null);
+  const selectedDetails = selectedUser
+    ? getProfileDetailEntries(selectedUser.detalhesPerfil)
+    : [];
 
   async function loadUsers() {
     setIsLoading(true);
@@ -38,7 +42,7 @@ export function UsersPage() {
 
   async function handleDeactivate(user: Usuario) {
     const confirmed = window.confirm(
-      `Desativar ${user.nome}? O registro permanecera no banco e o login sera bloqueado.`
+      `Desativar ${user.nome}? O registro permanecerá no banco e o login será bloqueado.`
     );
 
     if (!confirmed) {
@@ -51,7 +55,7 @@ export function UsersPage() {
 
     try {
       await desativarUsuario(user.id);
-      setMessage("Usuario desativado com sucesso. A exclusao foi logica.");
+      setMessage("Usuário desativado com sucesso. A exclusão foi lógica.");
       await loadUsers();
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -65,8 +69,8 @@ export function UsersPage() {
       <section className="panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Area administrativa</p>
-            <h1>Usuarios</h1>
+            <p className="eyebrow">Área administrativa</p>
+            <h1>Usuários</h1>
           </div>
           <button className="button button-secondary" type="button" onClick={loadUsers}>
             <RefreshCw size={18} aria-hidden="true" />
@@ -75,15 +79,15 @@ export function UsersPage() {
         </div>
 
         <p className="muted">
-          Esta tela e restrita ao perfil FUNCIONARIO. O botao Desativar chama
-          DELETE /api/usuarios/id e realiza exclusao logica.
+          Esta tela é restrita ao perfil Funcionário. O botão Desativar chama
+          DELETE /api/usuarios/id e realiza exclusão lógica.
         </p>
 
         <MessageBanner kind="success">{message}</MessageBanner>
         <MessageBanner kind="error">{error}</MessageBanner>
 
         {isLoading ? (
-          <p>Carregando usuarios...</p>
+          <p>Carregando usuários...</p>
         ) : (
           <div className="table-wrap">
             <table>
@@ -94,7 +98,7 @@ export function UsersPage() {
                   <th>CPF</th>
                   <th>Perfil</th>
                   <th>Status</th>
-                  <th>Acoes</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,7 +127,7 @@ export function UsersPage() {
                         <Link
                           className="icon-button"
                           to={`/usuarios/${user.id}/editar`}
-                          title="Editar usuario"
+                          title="Editar usuário"
                           aria-label={`Editar ${user.nome}`}
                         >
                           <Pencil size={17} aria-hidden="true" />
@@ -133,7 +137,7 @@ export function UsersPage() {
                           type="button"
                           onClick={() => handleDeactivate(user)}
                           disabled={user.status === "DESATIVADO" || actionId === user.id}
-                          title="Desativar usuario"
+                          title={user.status === "DESATIVADO" ? "Usuário já desativado" : "Desativar usuário"}
                           aria-label={`Desativar ${user.nome}`}
                         >
                           <Trash2 size={17} aria-hidden="true" />
@@ -145,7 +149,15 @@ export function UsersPage() {
 
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan={6}>Nenhum usuario cadastrado.</td>
+                    <td colSpan={6}>
+                      <div className="empty-state">
+                        <strong>Nenhum usuário cadastrado.</strong>
+                        <span>Cadastre um usuário Aluno ou Funcionário para iniciar a demonstração.</span>
+                        <Link className="button button-secondary" to="/cadastro">
+                          Cadastrar usuário
+                        </Link>
+                      </div>
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -161,13 +173,36 @@ export function UsersPage() {
               <p className="eyebrow">Detalhes</p>
               <h2>{selectedUser.nome}</h2>
             </div>
-            <StatusBadge value={selectedUser.status} />
+            <div className="row-actions">
+              <StatusBadge value={selectedUser.status} />
+              <button
+                className="icon-button"
+                type="button"
+                onClick={() => setSelectedUser(null)}
+                title="Fechar detalhes"
+                aria-label="Fechar detalhes"
+              >
+                <X size={17} aria-hidden="true" />
+              </button>
+            </div>
           </div>
 
           <div className="details-grid">
             <div>
-              <span>ID</span>
-              <strong>{selectedUser.id}</strong>
+              <span>Nome</span>
+              <strong>{selectedUser.nome}</strong>
+            </div>
+            <div>
+              <span>E-mail</span>
+              <strong>{selectedUser.email}</strong>
+            </div>
+            <div>
+              <span>CPF</span>
+              <strong>{selectedUser.cpf}</strong>
+            </div>
+            <div>
+              <span>Perfil</span>
+              <strong>{getPerfilLabel(selectedUser.perfil)}</strong>
             </div>
             <div>
               <span>Nascimento</span>
@@ -177,14 +212,22 @@ export function UsersPage() {
               <span>Celular</span>
               <strong>{selectedUser.celular}</strong>
             </div>
-            <div>
-              <span>Perfil</span>
-              <strong>{selectedUser.perfil}</strong>
-            </div>
-            <div className="wide">
-              <span>Detalhes do perfil</span>
-              <pre>{JSON.stringify(selectedUser.detalhesPerfil, null, 2)}</pre>
-            </div>
+          </div>
+
+          <div className="profile-details-panel">
+            <h3>Detalhes do perfil</h3>
+            {selectedDetails.length > 0 ? (
+              <dl className="profile-details-list">
+                {selectedDetails.map((detail) => (
+                  <div key={detail.key}>
+                    <dt>{detail.label}</dt>
+                    <dd>{detail.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="muted">Nenhum detalhe de perfil informado.</p>
+            )}
           </div>
         </section>
       )}
